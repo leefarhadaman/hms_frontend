@@ -1,27 +1,40 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 export default function DashboardPage() {
     const router = useRouter();
-    const { user, logout, isAuthenticated } = useAuth();
-
-    // Redirect to login if not authenticated
+    const [mounted, setMounted] = useState(false);
+    
     useEffect(() => {
-        if (!isAuthenticated) {
+        setMounted(true);
+    }, []);
+
+    // Only use auth after mounting to avoid SSR issues
+    const auth = mounted ? useAuth() : null;
+    
+    useEffect(() => {
+        if (mounted && auth && !auth.isAuthenticated) {
             router.push('/login');
         }
-    }, [isAuthenticated, router]);
+    }, [mounted, auth, router]);
 
     const handleLogout = async () => {
-        await logout();
-        router.push('/login');
+        if (auth) {
+            await auth.logout();
+            router.push('/login');
+        }
     };
 
-    if (!isAuthenticated || !user) {
-        return null;
+    // Show loading while mounting or if not authenticated
+    if (!mounted || !auth || !auth.isAuthenticated || !auth.user) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
     }
 
     return (
@@ -37,17 +50,17 @@ export default function DashboardPage() {
                 <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
                     {/* Welcome Message */}
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                        Welcome, {user.email.split('@')[0]}!
+                        Welcome, {auth.user.email.split('@')[0]}!
                     </h2>
 
                     {/* Role Badge */}
                     <div className="inline-block bg-gray-100 text-gray-900 px-4 py-1 rounded-lg text-sm font-medium mb-8">
-                        {user.role}
+                        {auth.user.role}
                     </div>
 
                     {/* Email */}
                     <p className="text-gray-600 mb-8">
-                        {user.email}
+                        {auth.user.email}
                     </p>
 
                     {/* Logout Button */}

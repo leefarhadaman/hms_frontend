@@ -63,7 +63,7 @@ export default function StaffDashboard() {
         const pendingAppts = appointmentsResponse.data.filter((apt: any) => 
           apt.status === 'SCHEDULED'
         )
-        const completedAppts = appointmentsResponse.data.filter((apt: unknown) => 
+        const completedAppts = appointmentsResponse.data.filter((apt: any) => 
           apt.status === 'COMPLETED'
         )
 
@@ -80,7 +80,7 @@ export default function StaffDashboard() {
       if (patientsResponse.success && patientsResponse.pagination) {
         setStats(prev => ({
           ...prev,
-          totalPatients: patientsResponse.pagination.total
+          totalPatients: patientsResponse.pagination?.total || 0
         }))
       }
     } catch (error) {

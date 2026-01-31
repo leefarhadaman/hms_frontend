@@ -27,7 +27,7 @@ export function DashboardLayout({ children, requiredRole }: DashboardLayoutProps
 
     if (requiredRole && userData.role !== requiredRole) {
       // Redirect to appropriate dashboard based on role
-      const roleRoutes = {
+      const roleRoutes: Record<string, string> = {
         ADMIN: '/admin/dashboard',
         DOCTOR: '/doctor/dashboard',
         STAFF: '/staff/dashboard',
